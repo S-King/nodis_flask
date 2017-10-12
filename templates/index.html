@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio Dashboard
+{% endblock %}
+
+{% block main %}
+
+<!--Add available cash and total (cash + stock value)-->
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">Overall Investments</div>
+      <div class="panel-body">
+          <div class="table-responsive">
+              <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th>Shares</th>
+                  <th>Average Price</th>
+                  <th>Total</th>
+                  <th>Current Price</th>
+                  <th>Current Value</th>
+                  <th/>
+                  <th/>
+                </tr>
+              </thead>
+              <tbody>
+             {% for type, symbol, full_name, pps, ns, tot, ts, current_price, current_value in portfolio_list %}
+                 {% if type == 'Portfolio Total' %}
+                    <tr>
+                      <td data-id={{ symbol }}>{{ symbol }}</td>
+                      <td>{{ name }}</td>
+                      <td>{{ ns }}</td>
+                      
+                      <td>${{ pps }}</td>
+                      <td>${{ tot }}</td>
+                          
+                          {% if pps < current_price %}
+                            <td class="green">${{ current_price }}</td>   
+                          {% elif pps > current_price %}
+                            <td class="red">${{ current_price }}</td>  
+                          {% else %}
+                            <td>${{ current_price }}</td>  
+                          {% endif %}
+                      <td>{{ current_value }}</td>
+                      <td>{{ symbol }} - ${{ pps }} per share average for {{ ns }} total shares. Total Cost ${{ tot }}</td>
+                      <td>
+                        <!--<form action="{{ url_for('sell') }}" method="POST"><button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#sell_shares">SELL</button>-->
+                        <!--            <input hidden=true id="num_shares" name="num_shares_" value={{ ns }}>-->
+                        <!--            <input hidden=true id="symbol_input" name="symbol_input" value={{ symbol }}>-->
+                        <!--            <input hidden=true id="price_input" name="price_input" value={{ current_price }}>-->
+                        <!--</form>-->
+                        <input hidden=true id="price_input_{{ symbol }}" name="price_input" value={{ current_price }}/>
+                        <input hidden=true id="full_name_{{ symbol }}" name="price_input" value={{ full_name }}/>
+                        <button class="btn btn-warning btn-sm" type="button" id=" " value={{ symbol }} onclick='update_sell_modal(this)' data-toggle="modal" data-target="#sell_shares">SELL</button>
+                  </td>
+                    </tr>        
+                {% endif %}
+            {% endfor %}
+                <tfoot>
+                  <tr>
+                    <td>Cash Remaining: <b>{{ cash }}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total Portfolio Value: <b>{{ total_value }}</b></td>
+                  </tr>
+                </tfoot>
+            </tbody>
+          </table>
+          </div>
+          
+      </div>
+    </div>
+    
+       <!--Modal -->
+  <div class="modal fade" id="sell_shares" role="dialog">
+    <div class="modal-dialog">
+       <!--Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Enter the number of shares to sell</h4>
+        </div>
+        <div class="modal-body">
+          
+          <div class="panel">
+          <label for="num_shares_input">Sell </label>
+          <input type="text" pattern="[0-9]" style="width:100px;" class="form-control" onkeyup="update_sell_total()" id="num_shares_sell_input">
+          shares of <span id="modal_symbol"></span>
+          </div>
+          
+          <div class="panel">at <button id="modal_pps" value="0.0" style="width:100px; align:right;">$0.00</button> per share.</div>
+          <div class="panel panel-info" id="total_sale" value="0.0"><h3>Total: </h3></div>
+          
+        </div>
+        <div class="modal-footer">
+          <form action="{{ url_for('sell') }}" method="post">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button class="btn btn-danger" type="submit">Sell</button>
+              <input hidden=true id="num_shares_form" name="num_shares_form" value="0"/>
+              <input hidden=true id="symbol_form" name="symbol_form" value=""/>
+              <input hidden=true id="full_name_form" name="full_name_form" value=""/>
+              <input hidden=true id="pps_form" name="pps_form" value="0.0"/>
+              <input hidden=true id="total_form" name="total_form" value="0.0"/> 
+          </form>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  
+  <script>
+  function update_sell_modal(btnvalue) {
+    document.getElementById("modal_symbol").innerText = btnvalue.value;
+    document.getElementById("modal_pps").innerText = "$" + document.getElementById("price_input_" + btnvalue.value).value.replace(/\/+$/, "");
+    document.getElementById("modal_pps").value = document.getElementById("price_input_" + btnvalue.value).value;
+    document.getElementById("full_name_form").value = document.getElementById("full_name_" + btnvalue.value).value;
+  }
+  
+  function update_sell_total() {
+    //alert(Math.round((parseFloat(document.getElementById("modal_pps").value) * parseFloat(document.getElementById("modal_pps").value))*100)/100);
+    var total = Math.round((parseFloat(document.getElementById("modal_pps").value) * parseFloat(document.getElementById("num_shares_sell_input").value))*100)/100;
+    //alert(total);
+    //alert(accounting.formatMoney(12345678).value); // $12,345,678.00
+    document.getElementById("total_sale").innerHTML = "<h3>Total: $" + total + "</h3>";
+    document.getElementById("total_sale").value = total;
+    
+    document.getElementById("num_shares_form").value = parseFloat(document.getElementById("num_shares_sell_input").value);
+    document.getElementById("symbol_form").value = document.getElementById("modal_symbol").innerText;
+    document.getElementById("pps_form").value = document.getElementById("modal_pps").value.replace(/\/+$/, "");
+    document.getElementById("total_form").value = total;
+  }
+  </script>
+  
+  <script src="scripts/accounting.js"></script>
+    
+{% endblock %}

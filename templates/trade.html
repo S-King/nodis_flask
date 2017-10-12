@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Stock Quotes
+{% endblock %}
+
+{% block main %}
+
+<style type="text/css">
+    .label-buybtn { color:#ffffff }
+</style>
+
+<script type="text/javascript">
+    function update_total(){
+        var price_per_share = parseFloat({{ price }});
+        var num_shares = document.getElementById("num_shares").value;
+        document.getElementById("trade_total_label").textContent = '$' + (price_per_share * num_shares).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+        document.getElementById("trade_total").value = (price_per_share * num_shares).toFixed(2);
+        document.getElementById("symbol_input").value = {{ symbol|tojson }} ;
+        document.getElementById("price_input").value = price_per_share;
+        document.getElementById("full_name").value = {{ name|tojson }};
+    }
+</script>
+
+
+    <div class="jumbotron">
+        <h1 class="display-3">Stock Quotes</h1>
+        <form action="{{ url_for('trade') }}" method="post">
+            <fieldset>
+                <div class="form-group">
+                    <input autocomplete="off" autofocus class="form-control" name="stock_symbol" placeholder="Enter a stock symbol" type="text"/>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-default" type="submit" name="submit_search" value="Search">Search Symbol</button>
+                </div>
+            </fieldset>
+        </form>
+
+            {% if name|length > 0 %}
+                <p id="quote_info" class="lead" id="">Name: {{ name }} : {{ price_str }} -- Symbol: {{ symbol }}</p>                
+            {% endif %}
+        <hr class="my-4">
+
+        <form action="{{ url_for('buy') }}" method="post">        
+        <h4>
+        <!--<button class="btn btn-primary btn" type="submit" value="Refresh" role="button">Refresh Quote</button>-->
+        <button class="btn btn-success btn" type="submit" value="submit_buy" role="button">Buy</button>
+        <input autocomplete="off" id="num_shares" value="" name="num_shares" onkeyup="update_total()" autofocus class="form-control" placeholder="Number of Shares to Buy" type="text"/>
+        <input hidden=true id="trade_total" name="trade_total" value=0.0 />
+        <input hidden=true id="symbol_input" name="symbol_input" value="" />
+        <input hidden=true id="price_input" name="price_input" value=0.0 />
+        <input hidden=true id="full_name" name="full_name" value="" />
+        <span id="trade_total_label" value=0.0 class="label label-default label-buybtn">$0.00</span>
+        </h4>
+        </form>
+
+    </div>
+
+{% endblock %}

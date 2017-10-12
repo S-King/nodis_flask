@@ -1,0 +1,8 @@
+// Install
+pip3 install virtualenv
+
+// Set up using Py3.4
+virtualenv -p /usr/bin/python3.4 Nodis
+
+// Activate
+source Nodis/bin/activate

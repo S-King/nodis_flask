@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio Dashboardpip install mpld3
+{% endblock %}
+
+{% block main %}
+
+<!--Change Display to HTML Table-->
+<!--Add current_price to table-->
+<!--Add available cash and total (cash + stock value)-->
+
+    <div class="panel panel-info">
+      <div class="panel-heading">Trade Portfolio</div>
+      <div class="panel-body">
+         <div class="table-responsive">
+              <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th>Shares</th>
+                  <th>Average Price</th>
+                  <th>Total</th>
+                  <th></th>
+                  <th>Trade Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+          <!--<ul style="list-style:none">-->
+             {% for type, symbol, full_name, pps, ns, tot, ts in portfolio_list %}
+                 {% if type == 'Individual Trade' %}
+                    <tr>
+                      <td>{{ symbol }}</td>
+                      <td>{{ name }}</td>
+                      <td>{{ ns }}</td>
+                      <td>{{ pps }}</td>
+                      <td>{{ tot }}</td>
+                      <td>{{ symbol }} - ${{ pps }} per share for {{ ns }} total shares. Total Cost ${{ tot }}</td>
+                      <td>{{ ts }}</td>
+                    </tr>        
+                {% endif %}
+            {% endfor %}
+          <!--</ul>-->
+              </tbody>
+          </table>
+          </div>
+      </div>
+    </div>
+    
+ 
+{% endblock %}
